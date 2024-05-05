@@ -41,13 +41,13 @@ In order for your GitHub Actions workflow to be able to connect to your Snowflak
     SNOWSQL_DATABASE | HOL_DB
 
 - Notes:
-    - To get the SNOWSQL_ACCOUNT, in the Snowflake console click on your account name in the lower left, hover over your account, then select Copy account URL.
-
-    <img src="images/prereq/get_account.png" width=600px>
-
-    - The account is **identifier.region.cloudprovider** prior to **.snowflakecomputing.com** 
-
-    <img src="images/prereq/account_url.png" width=600px>
+    - To get the SNOWSQL_ACCOUNT, there are a few different ways to get this, but the easiest way to get the account info in the correct format is to open a snowflake worksheet and run the following query, which will output ```<organization-accountname>```
+    
+    ```
+    select SPLIT_PART(t.value:host::varchar, '.', 1) as org_account_name
+    from table(flatten(input => parse_json(SYSTEM$ALLOWLIST()))) as t
+    where t.value ilike '%SNOWFLAKE_DEPLOYMENT_REGIONLESS%'; 
+    ```
 
 ### Create a GitHub Codespace
 
@@ -59,12 +59,15 @@ Note: Snowpark development can be done on your desktop with any IDE such as VS C
 
     <img src="images/prereq/launch_codespace.png" width=600px>
 
-   - Once the Codespace has launched and the setup script has finished, select the Snowflake icon in the left pane of the Codespace to sign into snowflake extension using
-your snowflake URL then enter your username and password.
-        -  Note: to get the snowflake URL, just as you did for the GitHub secret step; in the Snowflake console click
-on your account name in the lower left, hover over your account, then select Copy account URL.
+   - Once the Codespace has launched and the setup script has finished, select the Snowflake icon in the left pane of the Codespace to sign into snowflake extension using your snowflake URL then enter your username and password.
 
     <img src="images/prereq/snow_ext.png" width=200px>
+
+     In order to get the snowflake URL, within the Snowflake console click on your account name in the lower left, hover over your account, then select Copy account URL.
+
+    <img src="images/prereq/get_account.png" width=600px>
+    
+     - The URL will look like **`https://accountidentifier.snowflakecomputing.com`**
 
 - The Snowflake Extension allows us to run .sql files and query snowflake from VS Code. Once you are signed into the Snowflake extension, we need to create credentials file for the Snowpark to use when running and deploying our python code. A terminal should already be open, if not open a new terminal.
 
