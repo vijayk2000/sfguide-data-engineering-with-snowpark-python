@@ -27,11 +27,9 @@ Date(yyyy-mm-dd)    Author              Comments
 # Import Python packages
 import streamlit as st
 import plotly.express as px
+import json
 
 # Import Snowflake modules
-import sys
-sys.path.append('../..')
-from utils import snowpark_utils
 from snowflake.snowpark import Session
 import snowflake.snowpark.functions as F
 from snowflake.snowpark import Window
@@ -48,7 +46,7 @@ st.header("Predicted Shift Sales by Location")
 st.subheader("Data-driven recommendations for food truck drivers.")
 
 # session=create_session_object()
-session=snowpark_utils.get_snowpark_session()
+session = Session.builder.getOrCreate()
 
 
 # Create input widgets for cities and shift
