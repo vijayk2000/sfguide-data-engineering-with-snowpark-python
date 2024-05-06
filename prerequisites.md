@@ -29,25 +29,25 @@ ahead and enable them green button.
 
 In order for your GitHub Actions workflow to be able to connect to your Snowflake account you will need to store your Snowflake credentials in GitHub. Action Secrets in GitHub are used to securely store values/variables which will be used in your CI/CD pipelines. In this step, we will create secrets for each of the parameters.
 
-- From the repository, click on the Settings tab near the top of the page. From the Settings page, click on the "Secrets and variables" then "Actions" tab in the left-hand navigation. The Actions secrets should be selected. For each secret listed below click on "New repository secret" near the top right and enter the name given below along with the appropriate value (adjusting as appropriate).
+- From the repository, click on the `Settings` tab near the top of the page. From the Settings page, click on the `Secrets and variables` then `Actions` tab in the left-hand navigation. The Actions secrets should be selected. For each secret listed below click on `New repository secret` near the top right and enter the name given below along with the appropriate value (adjusting as appropriate).
 
     Secret Name | Secret Value
     ------------|--------------
-    SNOWSQL_ACCOUNT | \<myaccount\>
-    SNOWSQL_USER | \<myusername\>
-    SNOWSQL_PWD | \<mypassword\>
-    SNOWSQL_ROLE | HOL_ROLE
-    SNOWSQL_WAREHOUSE | HOL_WH
-    SNOWSQL_DATABASE | HOL_DB
+    SNOWFLAKE_ACCOUNT | \<myaccount\>
+    SNOWFLAKE_USER | \<myusername\>
+    SNOWFLAKE_PWD | \<mypassword\>
+    SNOWFLAKE_ROLE | HOL_ROLE
+    SNOWFLAKE_WAREHOUSE | HOL_WH
+    SNOWFLAKE_DATABASE | HOL_DB
 
 - Notes:
-    - To get the SNOWSQL_ACCOUNT, in the Snowflake console click on your account name in the lower left, hover over your account, then select Copy account URL.
-
-    <img src="images/prereq/get_account.png" width=600px>
-
-    - The account is **identifier.region.cloudprovider** prior to **.snowflakecomputing.com** 
-
-    <img src="images/prereq/account_url.png" width=600px>
+    - To get the SNOWFLAKE_ACCOUNT, there are a few different ways to get this, but the easiest way to get the account info in the correct format is to open a snowflake worksheet and run the following query, which will output ```<organization-accountname>```
+    
+    ```
+    select SPLIT_PART(t.value:host::varchar, '.', 1) as org_account_name
+    from table(flatten(input => parse_json(SYSTEM$ALLOWLIST()))) as t
+    where t.value ilike '%SNOWFLAKE_DEPLOYMENT_REGIONLESS%'; 
+    ```
 
 ### Create a GitHub Codespace
 
@@ -59,10 +59,7 @@ Note: Snowpark development can be done on your desktop with any IDE such as VS C
 
     <img src="images/prereq/launch_codespace.png" width=600px>
 
-   - Once the Codespace has launched and the setup script has finished, select the Snowflake icon in the left pane of the Codespace to sign into snowflake extension using
-your snowflake URL then enter your username and password.
-        -  Note: to get the snowflake URL, just as you did for the GitHub secret step; in the Snowflake console click
-on your account name in the lower left, hover over your account, then select Copy account URL.
+   - Once the Codespace has launched and the setup script has finished, select the Snowflake icon in the left pane of the Codespace to sign into snowflake extension using your snowflake account Name then enter your username and password. You account name will be the same ```<organization-accountname>``` used for the github action.
 
     <img src="images/prereq/snow_ext.png" width=200px>
 
@@ -71,16 +68,18 @@ on your account name in the lower left, hover over your account, then select Cop
     <img src="images/prereq/terminal.png" width=400px>
 
 ### Create Snowflake Credentials File
-During the codespace setup a default conig file was created at `~/.snowsql/config`
+During the codespace setup a default conig file was created in the `~/.snowflake` folder
 
-The easiest way to edit the default `~/.snowsql/config` file is directly from VS Code in your codespace. Type `Command-P`, type (or paste) `~/.snowsql/config` and hit return. The SnowSQL config file should now be open. You just need to edit the file and replace the `accountname`, `username`, and `password` with your values, which are the exact same values used for the Github secrets. Now **save** and close the file.
+For this lab, you'll need to edit the `~/.snowflake/connections.toml` file. The easiest way to edit the default `~/.snowflake/connections.toml` file is directly from VS Code in your codespace. Type `Command-P`, type (or paste) `~/.snowflake/connections.toml` and hit return. The config file should now be open. You just need to edit the file and replace the `accountname`, `username`, and `password` with your values leaving the double quotes, which are the exact same values used for the Github secrets. `accountname` will be the same ```<organization-accountname>``` used for the previous steps.
+
+Now **save** and close the file.
 
 Alternatively, you can open that file by entering the following command into the same terminal: 
 ```
-code /home/vscode/.snowsql/config
+code /home/vscode/.snowflake/connections.toml
 ```
 
-Note: we aren’t actually installing or using snowsql, just creating the credentials in the location that the snowpark_utils python file expects them to be, since we are just deploying code to Snowflake and not staging local data.
+Note: we are creating the connection information in the codespace and not in the repostitory, so no credentials are being commited to github in this lab.
 
 ### Create Anaconda Environment and Test Connection
 This lab will take place inside an Anaconda virtual environment running in the Codespace. An anaconda environment called `snowflake-demo` should already have been created for you. You will know the environment is active when you see `(snowflake-demo)`, instead of `(base)` in front of the host name.

@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from utils import snowpark_utils
+# from utils import snowpark_utils
 from snowflake.snowpark import Session
 import streamlit as st
 import altair as alt
@@ -59,7 +59,7 @@ def get_data():
     """
 
     # session=create_session_object()
-    session=snowpark_utils.get_snowpark_session()
+    session = Session.builder.getOrCreate()
 
     # Execute the query and load the results into a DataFrame
     df = session.sql(query).to_pandas()

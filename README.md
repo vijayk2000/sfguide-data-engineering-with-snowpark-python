@@ -78,7 +78,7 @@ During this step we will be creating and deploying our first Snowpark Python obj
 To test the UDF locally, you will execute the `steps/05_fahrenheit_to_celsius_udf/app.py` script. Like we did in the previous steps, we'll execute it from the terminal. The following commands assume you are already in the `steps` directory of the repository.
 ```
 cd 05_fahrenheit_to_celsius_udf
-python app.py 35
+python fahrenheit_to_celsius_udf/function.py 35
 ```
 
 
@@ -89,7 +89,8 @@ While developing a UDF, you can simply run it locally. If your UDF doesn't need 
 To deploy your UDF to Snowflake we will use the SnowCLI tool. The SnowCLI tool will do all the heavy lifting of packaging up your application, copying it to a Snowflake stage, and creating the object in Snowflake.
 
 ```
-snow function create
+snow snowpark build
+snow snowpark deploy
 ```
 ### Running the UDF in Snowflake ###
 In order to run the UDF in Snowflake we have a few options. Any UDF in Snowflake can be invoked through SQL as follows:
@@ -101,7 +102,7 @@ SELECT ANALYTICS.FAHRENHEIT_TO_CELSIUS_UDF(35);
 With the SnowCLI utility you can also invoke the UDF from the terminal in Codespaces as follows:
 
 ```
-snow function execute -f "analytics.fahrenheit_to_celsius_udf(35)"
+snow snowpark execute function "fahrenheit_to_celsius_udf(35)"
 ```
 
 ## Step 6 - Orders Update Sproc
@@ -116,7 +117,7 @@ To test the procedure locally, you will execute the `steps/06_orders_update_sp/a
 ```
 cd ..
 cd 06_orders_update_sp
-python app.py
+python orders_update_sp/procedure.py
 ```
 
 While we’re developing the sproc, the Python code will run locally on your laptop, but the Snowpark DataFrame code will issue SQL queries to your Snowflake account.
@@ -125,7 +126,8 @@ While we’re developing the sproc, the Python code will run locally on your lap
 
 To deploy your sproc to Snowflake we will again use the SnowCLI tool.
 ```
-snow procedure create
+snow snowpark build
+snow snowpark deploy
 ```
 
 ### Running the Sproc in Snowflake ###
@@ -139,7 +141,7 @@ CALL HARMONIZED.ORDERS_UPDATE_SP();
 With the SnowCLI utility you can also invoke the UDF from the terminal in Codespaces as follows:
 
 ```
-snow procedure execute -p "orders_update_sp()"
+snow snowpark execute procedure "harmonized.orders_update_sp()"
 ```
 
 ## Step 7 - Daily City Metrics Update Sproc
@@ -155,7 +157,7 @@ To test the procedure locally, you will execute the steps/07_daily_city_metrics_
 ```
 cd ..
 cd 07_daily_city_metrics_update_sp
-python app.py
+python daily_city_metrics_update_sp/procedure.py
 ```
 
 ### Deploying the Sproc to Snowflake ###
@@ -163,7 +165,8 @@ python app.py
 To deploy your sproc to Snowflake we will again use the SnowCLI tool. 
 
 ```
-snow procedure create
+snow snowpark build
+snow snowpark deploy
 ```
 
 ### Running the Sproc in Snowflake ###
@@ -178,7 +181,7 @@ CALL ANALYTICS.DAILY_CITY_METRICS_UPDATE_SP();
 With the SnowCLI utility you can also invoke the UDF from the terminal in Codespaces as follows:
 
 ```
-snow procedure execute -p "daily_city_metrics_update_sp()"
+snow snowpark execute procedure "daily_city_metrics_update_sp()"
 ```
 
 ## Step 8 - Orchestrate Jobs
@@ -239,7 +242,7 @@ During this step we will be making a change to our `FAHRENHEIT_TO_CELSIUS_UDF()`
 
 ### Update the Fahrenheit to Celsius UDF ###
 
-We will be replacing our hard-coded temperature conversion with a package from `scipy`. First we will make a few changes to the `steps/05_fahrenheit_to_celsius_udf/app.py` script. In this file we will be adding an import command and replacing the body of the `main()` function. Open the `steps/05_fahrenheit_to_celsius_udf/app.py` script in Codespaces and replace this section:
+We will be replacing our hard-coded temperature conversion with a package from `scipy`. First we will make a few changes to the `steps/05_fahrenheit_to_celsius_udf/fahrenheit_to_celsius_udf/function.py` script. In this file we will be adding an `import` command and replacing the body of the `main()` function. Open the `steps/05_fahrenheit_to_celsius_udf/fahrenheit_to_celsius_udf/function.py` script in Codespaces and replace this section:
 
 ```
 import sys
@@ -271,7 +274,7 @@ To test the UDF locally, you will execute the `steps/05_fahrenheit_to_celsius_ud
 cd ..
 cd 05_fahrenheit_to_celsius_udf
 pip install -r requirements.txt
-python app.py 35
+python fahrenheit_to_celsius_udf/function.py 35
 ```
 
 Notice that this time we're also running pip install to make sure that our dependent packages are installed. Once your function runs successfully we'll be ready to deploy it via CI/CD.
